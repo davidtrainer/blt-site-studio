@@ -16,7 +16,6 @@ Add the following to the `repositories` section of your project's composer.json:
     "type": "vcs",
     "url": "https://github.com/davidtrainer/blt-cohesion.git"
 }
-
 ```
 
 Require the plugin with Composer:
