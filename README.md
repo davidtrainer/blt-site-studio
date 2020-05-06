@@ -20,7 +20,7 @@ Add the following to the `repositories` section of your project's composer.json:
 
 Require the plugin with Composer:
 
-`composer require docksal/blt-cohesion`
+`composer require acquia/blt-cohesion`
 
 ## Usage
 
