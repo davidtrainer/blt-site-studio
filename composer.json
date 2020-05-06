@@ -1,0 +1,27 @@
+{
+  "name": "acquia/blt-cohesion",
+  "type": "composer-plugin",
+  "description": "Cohesion integration for Acquia BLT",
+  "license": "GPL-2.0+",
+  "authors": [
+    {
+      "name": "Acquia Engineering",
+      "homepage": "https://www.acquia.com",
+      "role": "Maintainer"
+    }
+  ],
+  "repositories": {
+    "dx8": {
+      "type": "vcs",
+      "url": "https://bitbucket.org/cohesion_dev/dx8-module.git"
+    }
+  },
+  "require": {
+    "cohesion/dx8": ">=6.0.0"
+  },
+  "autoload": {
+    "psr-4": {
+      "Acquia\\Cohesion\\": "./src/"
+    }
+  }
+}
