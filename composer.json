@@ -1,6 +1,6 @@
 {
   "name": "acquia/blt-cohesion",
-  "type": "composer-plugin",
+  "type": "library",
   "description": "Cohesion integration for Acquia BLT",
   "license": "GPL-2.0+",
   "authors": [
