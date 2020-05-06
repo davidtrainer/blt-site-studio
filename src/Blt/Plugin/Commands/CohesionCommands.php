@@ -13,22 +13,27 @@ use Symfony\Component\Console\Event\ConsoleCommandEvent;
 class CohesionCommands extends BltTasks {
 
   /**
-   * This will be called after the `drupal:update` command is executed.
-   *
-   * @hook post-command drupal:update
-   */
-  public function postUpdateCohesionTasks(ConsoleCommandEvent $event) {
-    $command = $event->getCommand();
-    $this->say("postCommandMessage hook: The {$command->getName()} command has run!");
-  }
-
-
-  /**
    * @hook post-command drupal:update
    */
   public function postCommand($result, CommandData $commandData)
   {
-    $this->say("postCommandMessage hook: The {$command->getName()} command has run!");
-  }
+    $result = $this->taskDrush()
+      ->stopOnFail()
+      ->drush("pm:list --filter=\"cohesion_sync\" --status=Enabled --field=status")
+      ->run();
 
+    if(trim($result->getMessage()) === "Enabled") {
+      $result = $this->taskDrush()
+        ->stopOnFail()
+        ->drush("cohesion:import")
+        ->run();
+
+      $result = $this->taskDrush()
+        ->stopOnFail()
+        ->drush("cohesion:rebuild")
+        ->run();
+    } else {
+      $this->say("Cohesion sync is not enabled. Skipping Cohesion import and rebuild.");
+    }
+  }
 }
