@@ -6,7 +6,6 @@ use Acquia\Blt\Robo\BltTasks;
 use Consolidation\AnnotatedCommand\CommandData;
 use Symfony\Component\Console\Event\ConsoleCommandEvent;
 
-
 /**
  * Defines commands related to Cohesion.
  */
