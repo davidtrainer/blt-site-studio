@@ -12,7 +12,7 @@ use Symfony\Component\Console\Event\ConsoleCommandEvent;
 class CohesionCommands extends BltTasks {
 
   /**
-   * @hook post-command drupal:update
+   * @hook post-command drupal:config:import
    */
   public function postCommand($result, CommandData $commandData)
   {
@@ -22,11 +22,19 @@ class CohesionCommands extends BltTasks {
       ->run();
 
     if(trim($result->getMessage()) === "Enabled") {
+      // Import cohesion assets from the API.
       $result = $this->taskDrush()
         ->stopOnFail()
         ->drush("cohesion:import")
         ->run();
 
+      // Import cohesion configuration from the sync folder.
+      $result = $this->taskDrush()
+        ->stopOnFail()
+        ->drush("sync:import --overwrite-all")
+        ->run();
+
+      // Rebuild Cohesion.
       $result = $this->taskDrush()
         ->stopOnFail()
         ->drush("cohesion:rebuild")
