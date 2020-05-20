@@ -18,6 +18,12 @@ Add the following to the `repositories` section of your project's composer.json:
 }
 ```
 
+or run:
+
+```
+composer config repositories.blt-cohesion vcs https://github.com/davidtrainer/blt-cohesion.git
+```
+
 Require the plugin with Composer:
 
 `composer require acquia/blt-cohesion`
