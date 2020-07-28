@@ -30,4 +30,4 @@ Require the plugin with Composer:
 
 ## Usage
 
-This plugin will run Site Studio package import and asset rebuild after BLT's `drupal:config:import` command on sites that use Cohesion.
+This plugin will run Site Studio package import and asset rebuild after BLT's `drupal:config:import` command on sites that use Site Studio.
