@@ -1,7 +1,7 @@
 {
-  "name": "acquia/blt-cohesion",
+  "name": "acquia/blt-site-studio",
   "type": "library",
-  "description": "Cohesion integration for Acquia BLT",
+  "description": "Acquia Site Studio integration for Acquia BLT",
   "license": "GPL-2.0+",
   "authors": [
     {
@@ -11,13 +11,13 @@
     }
   ],
   "repositories": {
-    "dx8": {
+    "cohesion": {
       "type": "vcs",
-      "url": "https://bitbucket.org/cohesion_dev/dx8-module.git"
+      "url": "https://github.com/acquia/cohesion.git"
     }
   },
   "require": {
-    "cohesion/dx8": ">=6.0.0"
+    "acquia/cohesion": ">=6.4.0"
   },
   "autoload": {
     "psr-4": {
