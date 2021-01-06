@@ -1,9 +1,6 @@
 Acquia BLT integration with Site Studio
 ====
 
-Acquia BLT integration with Site Studio
-====
-
 This is an [Acquia BLT](https://github.com/acquia/blt) plugin providing [Acquia Site Studio](https://www.acquia.com/products-services/acquia-cohesion) integration to add the necessary site studio commands to blt setup to automate the Site Studio configuration setup and deployment.
 
 This plugin automates the necessary Site Studio drush commands into BLT setup to do the following: 
