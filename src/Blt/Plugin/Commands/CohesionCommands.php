@@ -7,7 +7,7 @@ use Consolidation\AnnotatedCommand\CommandData;
 use Symfony\Component\Console\Event\ConsoleCommandEvent;
 
 /**
- * Defines commands related to Cohesion.
+ * Defines commands related to Site Studio.
  */
 class CohesionCommands extends BltTasks {
 
@@ -28,19 +28,19 @@ class CohesionCommands extends BltTasks {
         ->drush("cohesion:import")
         ->run();
 
-      // Import cohesion configuration from the sync folder.
+      // Import Site Studio configuration from the sync folder.
       $result = $this->taskDrush()
         ->stopOnFail()
         ->drush("sync:import --overwrite-all")
         ->run();
 
-      // Rebuild Cohesion.
+      // Rebuild Site Studio.
       $result = $this->taskDrush()
         ->stopOnFail()
         ->drush("cohesion:rebuild")
         ->run();
     } else {
-      $this->say("Cohesion sync is not enabled. Skipping Cohesion import and rebuild.");
+      $this->say("Site Studio sync is not enabled. Skipping Site Studio import and rebuild.");
     }
   }
 }
