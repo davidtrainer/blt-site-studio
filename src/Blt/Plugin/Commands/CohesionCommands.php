@@ -31,7 +31,7 @@ class CohesionCommands extends BltTasks {
       // Import Site Studio configuration from the sync folder.
       $result = $this->taskDrush()
         ->stopOnFail()
-        ->drush("sync:import --overwrite-all")
+        ->drush("sync:import --overwrite-all --force")
         ->run();
 
       // Rebuild Site Studio.
