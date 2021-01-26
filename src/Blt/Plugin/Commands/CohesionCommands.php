@@ -22,7 +22,14 @@ class CohesionCommands extends BltTasks {
       ->run();
 
     if(trim($result->getMessage()) === "Enabled") {
-      // Import cohesion assets from the API.
+      // Rebuild cache.
+      $result = $this->taskDrush()
+        ->stopOnFail()
+        ->alias("self")
+        ->drush("cr")
+        ->run();
+
+      // Import Site Studio assets from the API.
       $result = $this->taskDrush()
         ->stopOnFail()
         ->drush("cohesion:import")
