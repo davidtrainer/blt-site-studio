@@ -105,8 +105,8 @@ class CohesionCommands extends BltTasks {
       ->copy($this->getConfigValue('repo.root') . '/vendor/acquia/blt-site-studio/config/config_ignore.settings.yml', $this->getConfigValue('repo.root') . '/config/default/config_ignore.settings.yml', TRUE)
       ->copy($this->getConfigValue('repo.root') . '/vendor/acquia/blt-site-studio/config/.htaccess', $this->getConfigValue('repo.root') . '/config/site_studio_sync/.htaccess', TRUE)
       ->copy($this->getConfigValue('repo.root') . '/vendor/acquia/blt-site-studio/config/README.md', $this->getConfigValue('repo.root') . '/config/site_studio_sync/README.md', TRUE)
-      ->copy($this->getConfigValue('repo.root') . '/vendor/acquia/blt-site-studio/settings/includes.settings.php', $this->getConfigValue('docroot') . 'sites/default/config/default/settings/includes.settings.php', TRUE)
-      ->copy($this->getConfigValue('repo.root') . '/vendor/acquia/blt-site-studio/settings/site-studio.settings.php', $this->getConfigValue('docroot') . 'sites/default/config/default/settings/site-studio.settings.php', TRUE)
+      ->copy($this->getConfigValue('repo.root') . '/vendor/acquia/blt-site-studio/settings/includes.settings.php', $this->getConfigValue('docroot') . 'sites/default/settings/includes.settings.php', TRUE)
+      ->copy($this->getConfigValue('repo.root') . '/vendor/acquia/blt-site-studio/settings/site-studio.settings.php', $this->getConfigValue('docroot') . 'sites/default/settings/site-studio.settings.php', TRUE)
       ->stopOnFail()
       ->setVerbosityThreshold(VerbosityThresholdInterface::VERBOSITY_VERBOSE)
       ->run();
