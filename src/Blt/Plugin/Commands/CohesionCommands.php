@@ -46,6 +46,21 @@ class CohesionCommands extends BltTasks {
         ->stopOnFail()
         ->drush("cohesion:rebuild")
         ->run();
+
+      // Is the site in maintenance mode?
+      $result = $this->taskDrush()
+        ->stopOnFail()
+        ->drush("state:get system.maintenance_mode")
+        ->run();
+
+      if(trim($result->getMessage()) === '1') {
+        // Take the site out of maintenance mode.
+        $result = $this->taskDrush()
+          ->stopOnFail()
+          ->alias("self")
+          ->drush("state:set system.maintenance_mode 0 --input-format=integer")
+          ->run();
+      }
     } else {
       $this->say("Site Studio sync is not enabled. Skipping Site Studio import and rebuild.");
     }
