@@ -17,14 +17,15 @@ Add the following to the `repositories` section of your project's composer.json:
 ```
 "blt-site-studio": {
     "type": "vcs",
-    "url": "https://github.com/davidtrainer/blt-site-studio.git"
+    "url": "https://github.com/davidtrainer/blt-site-studio.git",
+    "no-api": true
 }
 ```
 
 or run:
 
 ```
-composer config repositories.blt-site-studio vcs https://github.com/davidtrainer/blt-site-studio.git
+composer config repositories.blt-site-studio '{"type": "vcs", "url": "https://github.com/davidtrainer/blt-site-studio.git", "no-api": true}'
 ```
 
 Require the plugin with Composer:
