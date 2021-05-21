@@ -152,10 +152,9 @@ class CohesionCommands extends BltTasks {
       throw new BltException("Could not initialize Site Studio configuration.");
     }
 
+    // Sets default values for the project's blt.yml file.
     $project_yml = $this->getConfigValue('blt.config-files.project');
-
     $this->say("Updating ${project_yml}...");
-
     $project_config = YamlMunge::parseFile($project_yml);
     $project_config['site-studio']['cohesion-import'] = TRUE;
     $project_config['site-studio']['sync-import'] = TRUE;
@@ -166,6 +165,26 @@ class CohesionCommands extends BltTasks {
     }
     catch (\Exception $e) {
       throw new BltException("Unable to update $project_yml.");
+    }
+
+    // Automatically add config split and config ignore to project configuration.
+    $core_extensions = YamlMunge::parseFile($this->configSyncDir . '/core.extension.yml');
+    if (!array_key_exists("config_split", $core_extensions['module'])) {
+      $core_extensions['module']['config_split'] = 0;
+    }
+    if (!array_key_exists("config_filter", $core_extensions['module'])) {
+      $core_extensions['module']['config_filter'] = 0;
+    }
+    if (!array_key_exists("config_ignore", $core_extensions['module'])) {
+      $core_extensions['module']['config_ignore'] = 0;
+    }
+
+    try {
+      ksort($core_extensions['module']);
+      YamlMunge::writeFile($this->configSyncDir . '/core.extension.yml', $core_extensions);
+    }
+    catch (\Exception $e) {
+      throw new BltException("Unable to update core.extension.yml");
     }
 
   }
