@@ -50,7 +50,7 @@ class CohesionCommands extends BltTasks {
         // Import Site Studio configuration from the sync folder.
         $result = $this->taskDrush()
           ->stopOnFail()
-          ->drush("sync:import --overwrite-all --force")
+          ->drush("sync:import --overwrite-all --force --no-rebuild")
           ->run();
       } else {
         $this->say("Cohesion Sync Import disabled via blt.yml, skipping.");
