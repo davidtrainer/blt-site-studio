@@ -20,6 +20,7 @@ class CohesionCommands extends BltTasks {
   public function postCommand($result, CommandData $commandData)
   {
     $rebuild = $this->getConfigValue('site-studio.rebuild');
+    $no_rebuild_flag = $this->getConfigValue('site-studio.no-rebuild-flag');
     $sync_import = $this->getConfigValue('site-studio.sync-import');
     $cohesion_import = $this->getConfigValue('site-studio.cohesion-import');
 
@@ -48,10 +49,18 @@ class CohesionCommands extends BltTasks {
 
       if (!isset($sync_import) || $sync_import == TRUE) {
         // Import Site Studio configuration from the sync folder.
-        $result = $this->taskDrush()
+        if (!isset($no_rebuild_flag) || $no_rebuild_flag == TRUE) {
+          $result = $this->taskDrush()
+          ->stopOnFail()
+          ->drush("sync:import --overwrite-all --force --no-rebuild")
+          ->run();
+        }
+        else {
+          $result = $this->taskDrush()
           ->stopOnFail()
           ->drush("sync:import --overwrite-all --force")
           ->run();
+        }
       } else {
         $this->say("Cohesion Sync Import disabled via blt.yml, skipping.");
       }
@@ -123,6 +132,7 @@ class CohesionCommands extends BltTasks {
     $project_config['site-studio']['cohesion-import'] = TRUE;
     $project_config['site-studio']['sync-import'] = TRUE;
     $project_config['site-studio']['rebuild'] = TRUE;
+    $project_config['site-studio']['no-rebuild-flag'] = TRUE;
 
     try {
       YamlMunge::writeFile($project_yml, $project_config);
