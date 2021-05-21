@@ -6,13 +6,45 @@ use Acquia\Blt\Robo\BltTasks;
 use Acquia\Blt\Robo\Common\YamlMunge;
 use Acquia\Blt\Robo\Exceptions\BltException;
 use Consolidation\AnnotatedCommand\CommandData;
+use Drupal\Component\Uuid\Php;
 use Symfony\Component\Console\Event\ConsoleCommandEvent;
 use Robo\Contract\VerbosityThresholdInterface;
+use Acquia\Blt\Robo\Commands\Recipes\ConfigSplitCommand;
 
 /**
  * Defines commands related to Site Studio.
  */
 class CohesionCommands extends BltTasks {
+
+  /**
+   * An instance of the Php UUID generator used by the Drupal UUID service.
+   *
+   * @var \Drupal\Component\Uuid\Php
+   */
+  protected $uuidGenerator;
+
+  /**
+   * An instance of the Twig template environment.
+   *
+   * @var \Twig_Environment
+   */
+  protected $twig;
+
+  /**
+   * This hook will fire for all commands in this command file.
+   *
+   * @hook init
+   */
+  public function initialize() {
+    $this->uuidGenerator = new Php();
+    $template_dir = $this->getConfigValue('repo.root') . '/vendor/acquia/blt-site-studio/config';
+    $docroot = $this->getConfigValue('docroot');
+    $loader = new \Twig_Loader_Filesystem($template_dir);
+    $this->twig = new \Twig_Environment($loader);
+    $this->configSyncDir = $docroot . '/' . $this->getConfigValue('cm.core.dirs.sync.path');
+    $this->siteStudioSyncDir = $this->getConfigValue('repo.root') ."/config/site_studio_sync";
+  }
+
 
   /**
    * @hook post-command drupal:config:import
@@ -92,19 +124,24 @@ class CohesionCommands extends BltTasks {
    * @throws \Acquia\Blt\Robo\Exceptions\BltException
    */
   public function generateSiteStudioConfig() {
-    $split_dir = $this->getConfigValue('repo.root') ."/config/site_studio_sync";
     $this->say("This command will automatically generate and place configuration and settings files for Site Studio.");
     $result = $this->taskFilesystemStack()
-      ->mkdir($split_dir)
+      ->mkdir($this->siteStudioSyncDir)
       ->run();
     if (!$result->wasSuccessful()) {
-      throw new BltException("Unable to create $split_dir.");
+      throw new BltException("Unable to create $this->siteStudioSyncDir.");
     }
+
+    $config_files = [
+      'config_ignore.settings',
+      'config_split.config_split.site_studio_ignored_config',
+    ];
+
+    $this->createConfig($config_files);
+
     $result = $this->taskFilesystemStack()
-      ->copy($this->getConfigValue('repo.root') . '/vendor/acquia/blt-site-studio/config/config_split.config_split.site_studio_ignored_config.yml', $this->getConfigValue('repo.root') . '/config/default/config_split.config_split.site_studio_ignored_config.yml', TRUE)
-      ->copy($this->getConfigValue('repo.root') . '/vendor/acquia/blt-site-studio/config/config_ignore.settings.yml', $this->getConfigValue('repo.root') . '/config/default/config_ignore.settings.yml', TRUE)
-      ->copy($this->getConfigValue('repo.root') . '/vendor/acquia/blt-site-studio/config/.htaccess', $this->getConfigValue('repo.root') . '/config/site_studio_sync/.htaccess', TRUE)
-      ->copy($this->getConfigValue('repo.root') . '/vendor/acquia/blt-site-studio/config/README.md', $this->getConfigValue('repo.root') . '/config/site_studio_sync/README.md', TRUE)
+      ->copy($this->getConfigValue('repo.root') . '/vendor/acquia/blt-site-studio/config/.htaccess', $this->siteStudioSyncDir . '/.htaccess', TRUE)
+      ->copy($this->getConfigValue('repo.root') . '/vendor/acquia/blt-site-studio/config/README.md', $this->siteStudioSyncDir . '/README.md', TRUE)
       ->copy($this->getConfigValue('repo.root') . '/vendor/acquia/blt-site-studio/settings/global.settings.php', $this->getConfigValue('docroot') . '/sites/settings/global.settings.php', TRUE)
       ->copy($this->getConfigValue('repo.root') . '/vendor/acquia/blt-site-studio/settings/site-studio.settings.php', $this->getConfigValue('docroot') . '/sites/settings/site-studio.settings.php', TRUE)
       ->stopOnFail()
@@ -115,10 +152,9 @@ class CohesionCommands extends BltTasks {
       throw new BltException("Could not initialize Site Studio configuration.");
     }
 
+    // Sets default values for the project's blt.yml file.
     $project_yml = $this->getConfigValue('blt.config-files.project');
-
     $this->say("Updating ${project_yml}...");
-
     $project_config = YamlMunge::parseFile($project_yml);
     $project_config['site-studio']['cohesion-import'] = TRUE;
     $project_config['site-studio']['sync-import'] = TRUE;
@@ -131,6 +167,66 @@ class CohesionCommands extends BltTasks {
       throw new BltException("Unable to update $project_yml.");
     }
 
+    // Automatically add config split and config ignore to project configuration.
+    $core_extensions = YamlMunge::parseFile($this->configSyncDir . '/core.extension.yml');
+    if (!array_key_exists("config_split", $core_extensions['module'])) {
+      $core_extensions['module']['config_split'] = 0;
+    }
+    if (!array_key_exists("config_filter", $core_extensions['module'])) {
+      $core_extensions['module']['config_filter'] = 0;
+    }
+    if (!array_key_exists("config_ignore", $core_extensions['module'])) {
+      $core_extensions['module']['config_ignore'] = 0;
+    }
+
+    try {
+      ksort($core_extensions['module']);
+      YamlMunge::writeFile($this->configSyncDir . '/core.extension.yml', $core_extensions);
+    }
+    catch (\Exception $e) {
+      throw new BltException("Unable to update core.extension.yml");
+    }
+
+  }
+
+  /**
+   * Create a config_split configuration and directory for the given split.
+   *
+   * @param string $name
+   *   The name of the split to create.
+   */
+  protected function createConfig($configs) {
+    foreach ($configs as $config) {
+      $id = strtolower($config);
+      $config_file = $this->configSyncDir . "/{$id}.yml";
+      if (file_exists($config_file)) {
+        $this->say("The config file for $config already exists. Skipping.");
+      }
+      else {
+        $uuid = $this->uuidGenerator->generate();
+        $output = $this->twig->render($config . ".yml.twig", [
+          'uuid' => $uuid,
+        ]);
+        $this->writeSplitConfig($config_file, $output);
+      }
+    }
+  }
+
+  /**
+   * Write the config_split configuration YAML file in the given directory.
+   *
+   * @param string $file_path
+   *   The path where the file should be written.
+   * @param string $config
+   *   The config file contents.
+   */
+  protected function writeSplitConfig($file_path, $config) {
+    $result = $this->taskWriteToFile($file_path)
+      ->text($config)
+      ->run();
+    if (!$result) {
+      throw new BltException("Unable to write $file_path.");
+    }
   }
 
 }
