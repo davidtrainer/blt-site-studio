@@ -84,10 +84,6 @@ class CohesionCommands extends BltTasks {
           ->stopOnFail()
           ->drush("sync:import --overwrite-all --force --no-rebuild")
           ->run();
-        if (trim($result->getMessage()) === '1') {
-          $this->yell("drush @self sync:import failed. Unable to import Site Studio packages. Check your packages.", '40', 'red');
-          exit(1);
-        }
       } else {
         $this->say("Cohesion Sync Import disabled via blt.yml, skipping.");
       }
