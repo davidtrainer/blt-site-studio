@@ -229,4 +229,28 @@ class CohesionCommands extends BltTasks {
     }
   }
 
+  /**
+   * Creates "factory-hooks/post-site-update" directory in project's factory-hooks directory.
+   *
+   * @command recipes:acsf:init:site-studio-hook
+   * @throws \Acquia\Blt\Robo\Exceptions\BltException
+   */
+  public function acsfSiteStudioHooksInitialize() {
+    $this->say("This command will automatically generate and place a post site update script in your project's factory hooks.");
+    $defaultPostSiteUpdateHooks = $this->getConfigValue('blt.root') . '/../blt-site-studio/factory-hooks/post-site-update';
+    $projectPostSiteUpdateHooks = $this->getConfigValue('repo.root') . '/factory-hooks/post-site-update';
+
+    $result = $this->taskCopyDir([$defaultPostSiteUpdateHooks => $projectPostSiteUpdateHooks])
+      ->setVerbosityThreshold(VerbosityThresholdInterface::VERBOSITY_VERBOSE)
+      ->run();
+
+    if (!$result->wasSuccessful()) {
+      throw new BltException("Unable to copy ACSF scripts.");
+    }
+
+    $this->say('New "factory-hooks/post-site-update" directory created in repo root. Please commit this to your project.');
+
+    return $result;
+  }
+
 }
