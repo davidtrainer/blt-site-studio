@@ -3,7 +3,7 @@ Acquia BLT integration with Site Studio
 
 This is an [Acquia BLT](https://github.com/acquia/blt) plugin providing [Acquia Site Studio](https://www.acquia.com/products-services/acquia-cohesion) integration to add the necessary site studio commands to blt setup to automate the Site Studio configuration setup and deployment.
 
-This plugin automates the necessary Site Studio drush commands into BLT setup to do the following: 
+This plugin automates the necessary Site Studio drush commands into BLT setup to do the following:
 * Import Site Studio assets and configuration from the package file.
 * Import Site studio configuration from the sync folder.
 * Rebuild Site Studio.
@@ -35,3 +35,5 @@ Require the plugin with Composer:
 ## Usage
 
 This plugin will run Site Studio package import and asset rebuild after BLT's `drupal:config:import` command on sites that use Site Studio.
+
+The plugin also includes a recipe for ACSF to help create a post-site-update hook as described in the [docs](https://docs.acquia.com/site-factory/extend/hooks/post-site-update/). Once installed, edit this as needed for the individual project.
