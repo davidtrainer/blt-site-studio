@@ -36,4 +36,9 @@ Require the plugin with Composer:
 
 This plugin will run Site Studio package import and asset rebuild after BLT's `drupal:config:import` command on sites that use Site Studio.
 
-The plugin also includes a recipe for ACSF to help create a post-site-update hook as described in the [docs](https://docs.acquia.com/site-factory/extend/hooks/post-site-update/). Once installed, edit this as needed for the individual project.
+The plugin also includes a recipe for ACSF to help create a post-site-update hook as described in the [docs](https://docs.acquia.com/site-factory/extend/hooks/post-site-update/). Once installed, edit this as needed for the individual project. To run the recipe use:
+```
+blt recipes:acsf:init:site-studio-hook
+
+```
+The recipe will edit the default blt.yml file to disable the plugin for the ACSF environments but generate a local.blt.yml file that will preserve the plugin's functionality for local environments.

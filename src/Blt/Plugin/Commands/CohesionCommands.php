@@ -237,6 +237,7 @@ class CohesionCommands extends BltTasks {
    */
   public function acsfSiteStudioHooksInitialize() {
     $this->say("This command will automatically generate and place a post site update script in your project's factory hooks.");
+
     $defaultPostSiteUpdateHooks = $this->getConfigValue('blt.root') . '/../blt-site-studio/factory-hooks/post-site-update';
     $projectPostSiteUpdateHooks = $this->getConfigValue('repo.root') . '/factory-hooks/post-site-update';
 
@@ -247,8 +248,39 @@ class CohesionCommands extends BltTasks {
     if (!$result->wasSuccessful()) {
       throw new BltException("Unable to copy ACSF scripts.");
     }
-
     $this->say('New "factory-hooks/post-site-update" directory created in repo root. Please commit this to your project.');
+
+    // Disable Site Studio plugin by default in the project's blt.yml file.
+    $project_yml = $this->getConfigValue('blt.config-files.project');
+    $this->say("Updating ${project_yml}...");
+    $project_config = YamlMunge::parseFile($project_yml);
+    $project_config['site-studio']['cohesion-import'] = FALSE;
+    $project_config['site-studio']['sync-import'] = FALSE;
+    $project_config['site-studio']['rebuild'] = FALSE;
+
+    try {
+      YamlMunge::writeFile($project_yml, $project_config);
+    }
+    catch (\Exception $e) {
+      throw new BltException("Unable to update $project_yml.");
+    }
+    $this->say('Project blt.yml file has been edited to disable plugin in remot environments. Please commit this to your project.');
+
+    // Enable Site Studio plugin for local environment.
+    $local_project_yml = $this->getConfigValue('blt.config-files.local');
+    $this->say("Updating ${local_project_yml}...");
+    $local_project_config = (file_exists($local_project_yml) ? YamlMunge::parseFile($local_project_yml) : []);
+    $local_project_config['site-studio']['cohesion-import'] = TRUE;
+    $local_project_config['site-studio']['sync-import'] = TRUE;
+    $local_project_config['site-studio']['rebuild'] = TRUE;
+
+    try {
+      YamlMunge::writeFile($local_project_yml, $local_project_config);
+    }
+    catch (\Exception $e) {
+      throw new BltException("Unable to update $local_project_yml.");
+    }
+    $this->say('local.blt.yml file has been edited to enable plugin for the local environment. This file will be ignored by git so you do not need to commit it.');
 
     return $result;
   }
