@@ -19,6 +19,9 @@ echo "Attempt: $ATTEMPT"
 # Drush executable:
 drush="/mnt/www/html/$SITEGROUP.$ENVIRONMENT/vendor/bin/drush"
 
+# PHP
+php="$(which php)"
+
 # Create and set Drush cache to unique local temporary storage per site.
 # This approach isolates drush processes to completely avoid race conditions
 # that persist after initial attempts at addressing in BLT: https://github.com/acquia/blt/pull/2922
@@ -30,16 +33,16 @@ echo "Generated temporary Drush cache directory: $cache_dir."
 echo "Initializing Acquia Site Studio tasks on $DOMAIN domain in $ENVIRONMENT environment on the $SITEGROUP application."
 
 # Import cohesion (edit as needed).
-DRUSH_PATHS_CACHE_DIRECTORY="$cache_dir" /usr/local/php7.4/bin/php -d memory_limit=1024M $drush -r /mnt/www/html/$SITEGROUP.$ENVIRONMENT/docroot -l $DOMAIN cohesion:import
+DRUSH_PATHS_CACHE_DIRECTORY="$cache_dir" $php -d memory_limit=1024M $drush -r /mnt/www/html/$SITEGROUP.$ENVIRONMENT/docroot -l $DOMAIN cohesion:import
 result=$?
 
 # Import cohesion package.
-DRUSH_PATHS_CACHE_DIRECTORY="$cache_dir" /usr/local/php7.4/bin/php -d memory_limit=1024M $drush -r /mnt/www/html/$SITEGROUP.$ENVIRONMENT/docroot -l $DOMAIN sync:import --overwrite-all --force
+DRUSH_PATHS_CACHE_DIRECTORY="$cache_dir" $php -d memory_limit=1024M $drush -r /mnt/www/html/$SITEGROUP.$ENVIRONMENT/docroot -l $DOMAIN sync:import --overwrite-all --force
 
 # Rebuild cohesion.
 DRUSH_PATHS_CACHE_DIRECTORY="$cache_dir" $drush -r /mnt/www/html/$SITEGROUP.$ENVIRONMENT/docroot -l $DOMAIN cohesion:rebuild
 # Clear the cache.
-DRUSH_PATHS_CACHE_DIRECTORY="$cache_dir" /usr/local/php7.4/bin/php -d memory_limit=1024M $drush -r /mnt/www/html/$SITEGROUP.$ENVIRONMENT/docroot -l $DOMAIN cache:rebuild
+DRUSH_PATHS_CACHE_DIRECTORY="$cache_dir" $php -d memory_limit=1024M $drush -r /mnt/www/html/$SITEGROUP.$ENVIRONMENT/docroot -l $DOMAIN cache:rebuild
 
 # Clean up the drush cache directory.
 echo "Removing temporary drush cache files."
