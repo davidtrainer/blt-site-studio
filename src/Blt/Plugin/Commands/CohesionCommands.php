@@ -57,6 +57,7 @@ class CohesionCommands extends BltTasks {
 
     $result = $this->taskDrush()
       ->stopOnFail()
+      ->drush("cc drush")
       ->drush("pm:list --filter=\"cohesion_sync\" --status=Enabled --field=status")
       ->run();
 
