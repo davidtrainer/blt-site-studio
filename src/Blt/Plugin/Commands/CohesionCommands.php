@@ -57,8 +57,13 @@ class CohesionCommands extends BltTasks {
 
     $result = $this->taskDrush()
       ->stopOnFail()
+      ->drush("cc drush")
       ->drush("pm:list --filter=\"cohesion_sync\" --status=Enabled --field=status")
       ->run();
+
+    if (!$result->wasSuccessful()) {
+      throw new BltException("Failed to filter modules!");
+    }
 
     if (trim($result->getMessage()) === "Enabled") {
       // Rebuild cache.
@@ -68,12 +73,20 @@ class CohesionCommands extends BltTasks {
         ->drush("cr")
         ->run();
 
+      if (!$result->wasSuccessful()) {
+        throw new BltException("Failed to rebuild drupal caches!");
+      }
+
       if (!isset($cohesion_import) || $cohesion_import == TRUE) {
         // Import Site Studio assets from the API.
         $result = $this->taskDrush()
           ->stopOnFail()
           ->drush("cohesion:import")
           ->run();
+
+        if (!$result->wasSuccessful()) {
+          throw new BltException("Failed to execute cohesion:import!");
+        }
       } else {
         $this->say("Cohesion Import disabled via blt.yml, skipping.");
       }
@@ -84,6 +97,10 @@ class CohesionCommands extends BltTasks {
           ->stopOnFail()
           ->drush("sync:import --overwrite-all --force --no-rebuild")
           ->run();
+
+        if (!$result->wasSuccessful()) {
+          throw new BltException("Failed to execute sync:import!");
+        }
       } else {
         $this->say("Cohesion Sync Import disabled via blt.yml, skipping.");
       }
@@ -94,6 +111,9 @@ class CohesionCommands extends BltTasks {
           ->stopOnFail()
           ->drush("cohesion:rebuild")
           ->run();
+        if (!$result->wasSuccessful()) {
+          throw new BltException("Failed to execute cohesion:rebuild!");
+        }
       } else {
         $this->say("Cohesion Rebuild disabled via blt.yml, skipping.");
       }
@@ -104,6 +124,10 @@ class CohesionCommands extends BltTasks {
         ->drush("state:get system.maintenance_mode")
         ->run();
 
+      if (!$result->wasSuccessful()) {
+        throw new BltException("Failed to validate state of maintenance mode!");
+      }
+
       if (trim($result->getMessage()) === '1') {
         // Take the site out of maintenance mode.
         $result = $this->taskDrush()
@@ -111,6 +135,10 @@ class CohesionCommands extends BltTasks {
           ->alias("self")
           ->drush("state:set system.maintenance_mode 0 --input-format=integer")
           ->run();
+
+        if (!$result->wasSuccessful()) {
+          throw new BltException("Failed to take the site out of maintenance mode!");
+        }
       }
     } else {
       $this->say("Site Studio sync is not enabled. Skipping Site Studio import and rebuild.");
