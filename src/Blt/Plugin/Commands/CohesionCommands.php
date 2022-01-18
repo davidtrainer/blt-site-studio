@@ -53,7 +53,13 @@ class CohesionCommands extends BltTasks {
   {
     $rebuild = $this->getConfigValue('site-studio.rebuild');
     $sync_import = $this->getConfigValue('site-studio.sync-import');
+    $package_import = $this->getConfigValue('site-studio.package-import');
     $cohesion_import = $this->getConfigValue('site-studio.cohesion-import');
+
+    // Check if both package_import and sync_import are enabled.
+    if (isset($sync_import) && $sync_import && isset($package_import) && $package_import) {
+      throw new BltException("Cannot use both sync import and package import simultaneously. Use one or the other.");
+    }
 
     $result = $this->taskDrush()
       ->stopOnFail()
@@ -103,6 +109,21 @@ class CohesionCommands extends BltTasks {
         }
       } else {
         $this->say("Cohesion Sync Import disabled via blt.yml, skipping.");
+      }
+
+      if ($package_import == TRUE && !$sync_import) {
+        // Import Site Studio configuration using new package management commands.
+        $result = $this->taskDrush()
+          ->stopOnFail()
+          ->drush("sitestudio:package:import --diff --yes")
+          ->run();
+
+        if (!$result->wasSuccessful()) {
+          throw new BltException("Failed to execute sitestudio:package:import!");
+        }
+      }
+      else {
+        $this->say("Site Studio Package Import disabled via blt.yml, skipping.");
       }
 
       if (!isset($rebuild) || $rebuild == TRUE) {
