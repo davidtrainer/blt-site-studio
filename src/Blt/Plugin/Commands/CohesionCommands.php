@@ -112,7 +112,7 @@ class CohesionCommands extends BltTasks {
       }
 
       if ($package_import == TRUE && !$sync_import) {
-        // Import Site Studio configuration using new package management commands.
+        // Import Site Studio configuration using package management commands.
         $result = $this->taskDrush()
           ->stopOnFail()
           ->drush("sitestudio:package:import --diff --yes")
