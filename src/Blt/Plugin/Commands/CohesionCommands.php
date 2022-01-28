@@ -97,8 +97,8 @@ class CohesionCommands extends BltTasks {
         $this->say("Cohesion Import disabled via blt.yml, skipping.");
       }
 
-      if (!isset($sync_import) || $sync_import == TRUE) {
-        // Import Site Studio configuration from the sync folder.
+      if ($sync_import == TRUE) {
+        // Import Site Studio configuration from the sync folder using legacy package management commands.
         $result = $this->taskDrush()
           ->stopOnFail()
           ->drush("sync:import --overwrite-all --force --no-rebuild")
