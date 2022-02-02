@@ -115,7 +115,7 @@ class CohesionCommands extends BltTasks {
         // Import Site Studio configuration using package management commands.
         $result = $this->taskDrush()
           ->stopOnFail()
-          ->drush("sitestudio:package:import --diff --yes")
+          ->drush("sitestudio:package:import --yes")
           ->run();
 
         if (!$result->wasSuccessful()) {
