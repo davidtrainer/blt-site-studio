@@ -206,7 +206,8 @@ class CohesionCommands extends BltTasks {
     $this->say("Updating ${project_yml}...");
     $project_config = YamlMunge::parseFile($project_yml);
     $project_config['site-studio']['cohesion-import'] = TRUE;
-    $project_config['site-studio']['sync-import'] = TRUE;
+    $project_config['site-studio']['sync-import'] = FALSE;
+    $project_config['site-studio']['package-import'] = TRUE;
     $project_config['site-studio']['rebuild'] = TRUE;
 
     try {
