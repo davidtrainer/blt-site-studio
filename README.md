@@ -10,7 +10,7 @@ This plugin automates the necessary Site Studio drush commands into BLT setup to
 
 ## Installation
 
-To use this plugin, you must already have a Drupal project using BLT 10 or later, and Acquia Site Studio 6.4.0 or later.
+To use this plugin, you must already have a Drupal project using BLT 10 or later, and Acquia Site Studio 6.8.0 or later.
 
 The `1.x` branch supports Site Studio 6.7.x and below.
 
