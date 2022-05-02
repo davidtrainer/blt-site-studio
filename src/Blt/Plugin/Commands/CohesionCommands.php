@@ -10,6 +10,8 @@ use Drupal\Component\Uuid\Php;
 use Symfony\Component\Console\Event\ConsoleCommandEvent;
 use Robo\Contract\VerbosityThresholdInterface;
 use Acquia\Blt\Robo\Commands\Recipes\ConfigSplitCommand;
+use Twig\Environment;
+use Twig\Loader\FilesystemLoader;
 
 /**
  * Defines commands related to Site Studio.
@@ -26,7 +28,7 @@ class CohesionCommands extends BltTasks {
   /**
    * An instance of the Twig template environment.
    *
-   * @var \Twig_Environment
+   * @var \Twig\Environment
    */
   protected $twig;
 
@@ -39,8 +41,8 @@ class CohesionCommands extends BltTasks {
     $this->uuidGenerator = new Php();
     $template_dir = $this->getConfigValue('repo.root') . '/vendor/acquia/blt-site-studio/config';
     $docroot = $this->getConfigValue('docroot');
-    $loader = new \Twig_Loader_Filesystem($template_dir);
-    $this->twig = new \Twig_Environment($loader);
+    $loader = new FilesystemLoader($template_dir);
+    $this->twig = new Environment($loader);
     $this->configSyncDir = $docroot . '/' . $this->getConfigValue('cm.core.dirs.sync.path');
     $this->siteStudioSyncDir = $this->getConfigValue('repo.root') ."/config/site_studio_sync";
   }
