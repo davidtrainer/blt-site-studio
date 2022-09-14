@@ -7,9 +7,7 @@ use Acquia\Blt\Robo\Common\YamlMunge;
 use Acquia\Blt\Robo\Exceptions\BltException;
 use Consolidation\AnnotatedCommand\CommandData;
 use Drupal\Component\Uuid\Php;
-use Symfony\Component\Console\Event\ConsoleCommandEvent;
 use Robo\Contract\VerbosityThresholdInterface;
-use Acquia\Blt\Robo\Commands\Recipes\ConfigSplitCommand;
 use Twig\Environment;
 use Twig\Loader\FilesystemLoader;
 
@@ -44,18 +42,17 @@ class CohesionCommands extends BltTasks {
     $loader = new FilesystemLoader($template_dir);
     $this->twig = new Environment($loader);
     $this->configSyncDir = $docroot . '/' . $this->getConfigValue('cm.core.dirs.sync.path');
-    $this->siteStudioSyncDir = $this->getConfigValue('repo.root') ."/config/site_studio_sync";
+    $this->siteStudioSyncDir = $this->getConfigValue('repo.root') . "/config/site_studio_sync";
   }
-
 
   /**
    * @hook post-command drupal:config:import
    */
-  public function postCommand($result, CommandData $commandData)
-  {
+  public function postCommand($result, CommandData $commandData) {
     $rebuild = $this->getConfigValue('site-studio.rebuild');
     $sync_import = $this->getConfigValue('site-studio.sync-import');
     $package_import = $this->getConfigValue('site-studio.package-import');
+    $package_multi_import = $this->getConfigValue('site-studio.package-multi-import');
     $cohesion_import = $this->getConfigValue('site-studio.cohesion-import');
 
     // Check if both package_import and sync_import are enabled.
@@ -95,7 +92,8 @@ class CohesionCommands extends BltTasks {
         if (!$result->wasSuccessful()) {
           throw new BltException("Failed to execute cohesion:import!");
         }
-      } else {
+      }
+      else {
         $this->say("Cohesion Import disabled via blt.yml, skipping.");
       }
 
@@ -109,7 +107,8 @@ class CohesionCommands extends BltTasks {
         if (!$result->wasSuccessful()) {
           throw new BltException("Failed to execute sync:import!");
         }
-      } else {
+      }
+      else {
         $this->say("Cohesion Sync Import disabled via blt.yml, skipping.");
       }
 
@@ -118,6 +117,22 @@ class CohesionCommands extends BltTasks {
         $result = $this->taskDrush()
           ->stopOnFail()
           ->drush("sitestudio:package:import --yes")
+          ->run();
+
+        if (!$result->wasSuccessful()) {
+          throw new BltException("Failed to execute sitestudio:package:import!");
+        }
+      }
+      else {
+        $this->say("Site Studio Package Import disabled via blt.yml, skipping.");
+      }
+
+      if ($package_multi_import == TRUE && !$sync_import) {
+        // Import Multiple Site Studio packages.
+        $sitestudio_package_file = $this->getConfigValue('repo.root') . "/config/site_studio_sync/site_studio.packages.yml";
+        $result = $this->taskDrush()
+          ->stopOnFail()
+          ->drush("sitestudio:package:multi-import --path=$sitestudio_package_file")
           ->run();
 
         if (!$result->wasSuccessful()) {
@@ -137,7 +152,8 @@ class CohesionCommands extends BltTasks {
         if (!$result->wasSuccessful()) {
           throw new BltException("Failed to execute cohesion:rebuild!");
         }
-      } else {
+      }
+      else {
         $this->say("Cohesion Rebuild disabled via blt.yml, skipping.");
       }
 
@@ -163,15 +179,17 @@ class CohesionCommands extends BltTasks {
           throw new BltException("Failed to take the site out of maintenance mode!");
         }
       }
-    } else {
+    }
+    else {
       $this->say("Site Studio sync is not enabled. Skipping Site Studio import and rebuild.");
     }
   }
 
   /**
-   * Initializes default Site Studio config split configuration for this project.
+   * Initializes default Site Studio config split for this project.
    *
    * @command recipes:config:init:site-studio
+   *
    * @throws \Acquia\Blt\Robo\Exceptions\BltException
    */
   public function generateSiteStudioConfig() {
@@ -210,6 +228,7 @@ class CohesionCommands extends BltTasks {
     $project_config['site-studio']['cohesion-import'] = TRUE;
     $project_config['site-studio']['sync-import'] = FALSE;
     $project_config['site-studio']['package-import'] = TRUE;
+    $project_config['site-studio']['package-multi-import'] = TRUE;
     $project_config['site-studio']['rebuild'] = TRUE;
 
     try {
