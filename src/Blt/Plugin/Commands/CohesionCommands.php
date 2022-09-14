@@ -136,7 +136,7 @@ class CohesionCommands extends BltTasks {
           ->run();
 
         if (!$result->wasSuccessful()) {
-          throw new BltException("Failed to execute sitestudio:package:import!");
+          throw new BltException("Failed to execute sitestudio:package:multi-import!");
         }
       }
       else {
