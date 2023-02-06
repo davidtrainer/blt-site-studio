@@ -18,7 +18,7 @@
   },
   "require": {
     "acquia/cohesion": ">=6.8.0",
-    "drupal/config_ignore": "^1 | ^2",
+    "drupal/config_ignore": "^1 | ^2 | ^3",
     "drupal/config_split": "^1 | ^2"
   },
   "autoload": {
